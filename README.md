@@ -1,0 +1,1 @@
+# funny_block_diagram
