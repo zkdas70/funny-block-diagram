@@ -1,0 +1,8 @@
+a = set(int(input(f'qw{i}'))
+
+if len(a) <= 2:
+    print('if')
+    if len(a) <= 2:
+        print('if')
+else:
+    print('else')
