@@ -10,56 +10,37 @@ f = open('test')
 '''
 
 
-def col_spasess(string):
-    ansver = 0
+def get_nesting(string):
+    nesting = 0
     for i in string:
         if i != ' ':
             break
-        ansver += 1
-    return ansver // 2
-
-
-def get_insaid_code(code, nesting):
-    nesting += 1
-    insaid_code = []
-
-    for i in code:
-        if i.strip() == '':
-            continue
-        if col_spasess(i) < nesting:
-            return insaid_code
-        insaid_code.append(i)
-
+        nesting += 1
+    return nesting // 2
 
 
 def decoder(code, nesting=0):
     code_blocs = []
     continuer = 0
     for i in range(len(code)):
-        if continuer > 0:
+        item = code[i]
+        stript_item = item.strip()
+
+        if stript_item == '':
+            continue
+        if continuer:
             continuer -= 1
             continue
-        item = {
-            'tupe': None,
-            'content': None,
-            'insaid code': None,
-        }
-        if code[i].strip() == '':
-            continue
+        if get_nesting(item) < nesting:
+            return code_blocs
 
-        ii = code[i].lstrip()
-        if ii[:2] == 'if':
+        insaid_code = None
+        if stript_item[-1] == ':':
+            insaid_code = decoder(code[i + 1:], nesting=nesting + 1)
+            continuer += len(insaid_code)
 
-            item['tupe'] = 16
-            item['content'] = code[i]
-            insaid_code = get_insaid_code(code[i + 1:], nesting)
-            print(insaid_code, code[i + 1:], nesting)
-            continuer = len(insaid_code)
-            item['insaid code'] = decoder(insaid_code, nesting=nesting + 1)
-        else:
-            item['tupe'] = 2
-            item['content'] = code[i]
-        code_blocs.append(item)
+        code_blocs.append([stript_item, insaid_code, nesting])
+
     return code_blocs
 
 
