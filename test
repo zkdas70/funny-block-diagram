@@ -1,8 +1,10 @@
 a = set(int(input(f'qw{i}'))
 
-if len(a) <= 2:
+if len(a) <= 1:
     print('if')
     if len(a) <= 2:
         print('2if')
+        if len(a) <= 3:
+            print('3if')
 else:
     print('else')
