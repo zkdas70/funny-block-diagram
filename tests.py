@@ -1,27 +1,19 @@
-def decoder(code):
-    lines = code.split('\n')
-    deco = []
-    tab_count = 0
-    current_line = ''
-    for i, line in enumerate(lines):
-        if line.strip() != '':
-            current_tab_count = line.count('\t')
-            if current_tab_count > tab_count:
-                current_line += line.strip() + ' '
-            else:
-                if i == len(lines) - 1:
-                    deco.append([current_line, '', ''])
-                    current_line = ''
-                else:
-                    deco.append([current_line, decoder('\n'.join(lines[i:])), ''])
-                    current_line = ''
-            tab_count = current_tab_count
-    return deco
+from PIL import Image, ImageDraw, ImageFont
 
+# создаем изображение
+img = Image.new('RGB', (200, 200), color='white')
 
-# пример использования
-code = ("if len(a) <= 2:\n"
-        "\tprint('if')\n"
-        "print('end')")
-decoded_code = decoder(code)
-print(decoded_code)
+# получаем доступ к объекту ImageDraw
+draw = ImageDraw.Draw(img)
+
+# задаем размер шрифта и выбираем шрифт
+font_size = 20
+font = ImageFont.truetype("arial.ttf", font_size)
+
+# рисуем текст
+text = "Hello, world!"
+draw.text((50, 50), text, fill='black', font=font)
+
+draw.rectangle(50, 50, int(len(text)) * 2 + 1, int(len(text)) * 2 + 1, outline='black')
+# сохраняем изображение
+img.save('text.png')

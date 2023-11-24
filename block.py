@@ -1,10 +1,9 @@
 import constants
 
-import pprint
-
 
 class Block():
     IS_USE_TABS = False
+    END_BLOCK_WITH_ATTACHMENT = ':'
 
     def __init__(self):
         pass
@@ -26,7 +25,7 @@ class Block():
             if not len(stript_item) or stript_item[0] == '#':
                 continue
 
-            if stript_item[-1] == ':':
+            if stript_item[-1] == self.END_BLOCK_WITH_ATTACHMENT:
                 insaid_code = self.decoder(code[i + 1:], nesting=nesting + 1)
 
             if self.get_nesting(item) < nesting:
@@ -65,6 +64,8 @@ class Block():
 
 
 if __name__ == '__main__':
+    import pprint
+
     f = open('test')
     code = f.readlines()
     q = Block().decoder(code)
