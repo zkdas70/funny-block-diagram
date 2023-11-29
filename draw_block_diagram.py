@@ -8,7 +8,20 @@ from PIL import Image, ImageDraw, ImageFont
 
 
 class PaintBlock:
-    def tuple_rect(self, item, font='arial.ttf', size=20):
+    def __init__(self):
+        self.function_library = {
+            4: self.type_if,
+            32: self.type_for,
+            64:self.type_if,
+            128:self.type_user_interaction,
+            256:self.type_user_interaction,
+            512:self.type_rectangular,
+
+        }
+
+    DEFAULT_SIZE = 20
+
+    def type_rectangular(self, item, font='arial.ttf', size=DEFAULT_SIZE):
         font = ImageFont.truetype(font, size)
         text_size = font.font.getsize(item)[0]
         imge_size = (text_size[0] + 20, text_size[1] + 20)
@@ -24,7 +37,7 @@ class PaintBlock:
 
         return img
 
-    def tuple_user_interaction(self, item, font='arial.ttf', size=20):
+    def type_user_interaction(self, item, font='arial.ttf', size=DEFAULT_SIZE):
         font = ImageFont.truetype(font, size)
         text_width, text_height = font.font.getsize(item)[0]
         imge_size = (text_width + 40, text_height + 30)
@@ -47,7 +60,7 @@ class PaintBlock:
 
         return img
 
-    def tuple_ends(self, item, font='arial.ttf', size=20):
+    def type_ends(self, item, font='arial.ttf', size=DEFAULT_SIZE):
         font = ImageFont.truetype(font, size)
         text_width, text_height = font.font.getsize(item)[0]
         imge_size = (text_width + 40, text_height + 30)
@@ -81,7 +94,7 @@ class PaintBlock:
 
         return img
 
-    def tuple_for(self, item, font='arial.ttf', size=20):
+    def type_for(self, item, font='arial.ttf', size=DEFAULT_SIZE):
         font = ImageFont.truetype(font, size)
         text_width, text_height = font.font.getsize(item)[0]
         imge_size = (text_width + 40, text_height + 30)
@@ -109,7 +122,7 @@ class PaintBlock:
 
         return img
 
-    def tuple_if(self, item, font='arial.ttf', size=20):
+    def type_if(self, item, font='arial.ttf', size=DEFAULT_SIZE):
         font = ImageFont.truetype(font, size)
         text_width, text_height = font.font.getsize(item)[0]
         imge_size = (text_width * 2, int(text_height * 2.6))
@@ -134,6 +147,10 @@ class PaintBlock:
         return img
 
 
-PaintBlock().tuple_if("'eui5toyui6 h[t0r69p'e5gkobhwegho'iafjcuyp9or5;eis").show('charimg')
-
 # img.save('rectangle_with_text.png')
+
+
+# PaintBlock().type_if("'eui5toyui6 h[t0r69p'e5gkobhwegho'iafjcuyp9or5;eis").show('charimg')
+
+for item in test:
+    PaintBlock().function_library[item['type']](item['item']).show('charimg')
