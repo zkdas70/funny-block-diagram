@@ -12,10 +12,10 @@ class PaintBlock:
         self.function_library = {
             4: self.type_if,
             32: self.type_for,
-            64:self.type_if,
-            128:self.type_user_interaction,
-            256:self.type_user_interaction,
-            512:self.type_rectangular,
+            64: self.type_if,
+            128: self.type_user_interaction,
+            256: self.type_user_interaction,
+            512: self.type_rectangular,
 
         }
 
@@ -150,7 +150,45 @@ class PaintBlock:
 # img.save('rectangle_with_text.png')
 
 
-# PaintBlock().type_if("'eui5toyui6 h[t0r69p'e5gkobhwegho'iafjcuyp9or5;eis").show('charimg')
+# PaintBlock().type_if("'e5gks").show('charimg')
 
-for item in test:
-    PaintBlock().function_library[item['type']](item['item']).show('charimg')
+def drow_arrow(lomg=20, width=3):
+    img_arrow = Image.new('RGB', (width * 3, lomg), (255, 255, 255))
+
+    draw = ImageDraw.Draw(img_arrow)
+
+    draw.line((width * 3 // 2, 0, width * 3 // 2, lomg), fill=(0, 0, 0), width=2)
+    draw.polygon([(width * 3 // 2, lomg), (0, lomg - width), (width * 3, lomg - width)], fill=(0, 0, 0))
+    return img_arrow
+
+
+def draw_block_diagram(code):
+    image_block_diagram = Image.new('RGB', (0, 0), (255, 255, 255))
+    height = 0
+
+    for element in code:
+        image_from_element = PaintBlock().function_library[element['type']](element['item'])
+
+        block_diagram_width, block_diagram_height = image_block_diagram.size
+        elem_image_width, elem_image_height = image_from_element.size
+
+        block_diagram_width = max(elem_image_width, block_diagram_width)
+
+        nev_image = Image.new('RGB',
+                              (block_diagram_width, elem_image_height + block_diagram_height + 20),
+                              (255, 255, 255))
+        nev_image.paste(image_block_diagram, (0, 0))
+
+        image_block_diagram = nev_image
+        image_block_diagram.paste(image_from_element, ((block_diagram_width - elem_image_width) // 2, height))
+
+        height += image_from_element.height
+
+        img_arrow = drow_arrow()
+        image_block_diagram.paste(img_arrow, ((block_diagram_width - img_arrow.width) // 2, height))
+
+        height += img_arrow.height
+    return image_block_diagram
+
+
+draw_block_diagram(test).show('charimg')

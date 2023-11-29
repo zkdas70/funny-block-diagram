@@ -1,19 +1,14 @@
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw
 
-# создаем изображение
-img = Image.new('RGB', (200, 200), color='white')
+# Создаем изображение и объект ImageDraw
+image = Image.new('RGB', (300, 300), color='white')
+draw = ImageDraw.Draw(image)
 
-# получаем доступ к объекту ImageDraw
-draw = ImageDraw.Draw(img)
+# Определяем координаты вершин треугольника
+points = [(100, 100), (200, 100), (150, 200)]
 
-# задаем размер шрифта и выбираем шрифт
-font_size = 20
-font = ImageFont.truetype("arial.ttf", font_size)
+# Рисуем треугольник
+draw.polygon(points, fill='red')
 
-# рисуем текст
-text = "Hello, world!"
-draw.text((50, 50), text, fill='black', font=font)
-
-draw.rectangle(50, 50, int(len(text)) * 2 + 1, int(len(text)) * 2 + 1, outline='black')
-# сохраняем изображение
-img.save('text.png')
+# Сохраняем изображение
+image.save('triangle.png')
