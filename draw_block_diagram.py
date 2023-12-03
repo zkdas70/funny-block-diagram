@@ -1,8 +1,8 @@
-test = [{'insaid_code': None,
-         'item': "n = int(input('иван лох'))",
-         'type': 128},
-        {'insaid_code': None, 'item': 'divider = 0', 'type': 512},
-        {'insaid_code': None, 'item': 'dividend = 0', 'type': 512}, ]
+from block import Block
+
+f = open('test')
+code = f.readlines()
+test = Block().decoder(code)
 
 from PIL import Image, ImageDraw, ImageFont
 
@@ -165,29 +165,43 @@ def drow_arrow(lomg=20, width=3):
 def draw_block_diagram(code):
     image_block_diagram = Image.new('RGB', (0, 0), (255, 255, 255))
     height = 0
+    len_code = len(code)
 
-    for element in code:
+    for i in range(len_code):
+        element = code[i]
+
+        if element['insaid_code']:
+            # draw_block_diagram(element['insaid_code']).show('charimg')
+            pass
+
         image_from_element = PaintBlock().function_library[element['type']](element['item'])
 
-        block_diagram_width, block_diagram_height = image_block_diagram.size
-        elem_image_width, elem_image_height = image_from_element.size
+        block_diagram_size = list(image_block_diagram.size)
+        elem_image_size = list(image_from_element.size)
 
-        block_diagram_width = max(elem_image_width, block_diagram_width)
+        block_diagram_size[0] = max(elem_image_size[0], block_diagram_size[0])
+
+        img_arrow = drow_arrow()
+        arrow_image_size = list(img_arrow.size)
+
+        if i == len_code - 1:
+            arrow_image_size[1] = 0
 
         nev_image = Image.new('RGB',
-                              (block_diagram_width, elem_image_height + block_diagram_height + 20),
+                              (block_diagram_size[0],
+                               elem_image_size[1] + block_diagram_size[1] + arrow_image_size[1]),
                               (255, 255, 255))
-        nev_image.paste(image_block_diagram, (0, 0))
+        nev_image.paste(image_block_diagram, ((nev_image.width - image_block_diagram.width) // 2, 0))
 
         image_block_diagram = nev_image
-        image_block_diagram.paste(image_from_element, ((block_diagram_width - elem_image_width) // 2, height))
+        image_block_diagram.paste(image_from_element, ((block_diagram_size[0] - elem_image_size[0]) // 2, height))
 
         height += image_from_element.height
 
-        img_arrow = drow_arrow()
-        image_block_diagram.paste(img_arrow, ((block_diagram_width - img_arrow.width) // 2, height))
+        image_block_diagram.paste(img_arrow, ((block_diagram_size[0] - arrow_image_size[0]) // 2, height))
 
-        height += img_arrow.height
+        height += arrow_image_size[1]
+
     return image_block_diagram
 
 
