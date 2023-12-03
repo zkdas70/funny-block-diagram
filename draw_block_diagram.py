@@ -21,7 +21,12 @@ class PaintBlock:
 
     DEFAULT_SIZE = 20
 
-    def type_rectangular(self, item, font='arial.ttf', size=DEFAULT_SIZE):
+    def __draw_lines__(self, dots, draw):
+        for i in range(1, len(dots)):
+            draw.line((*dots[i - 1], *dots[i]), fill=(0, 0, 0), width=2)
+
+    def type_rectangular(self, block_info, font='arial.ttf', size=DEFAULT_SIZE):
+        item = block_info['item']
         font = ImageFont.truetype(font, size)
         text_size = font.font.getsize(item)[0]
         imge_size = (text_size[0] + 20, text_size[1] + 20)
@@ -37,7 +42,8 @@ class PaintBlock:
 
         return img
 
-    def type_user_interaction(self, item, font='arial.ttf', size=DEFAULT_SIZE):
+    def type_user_interaction(self, block_info, font='arial.ttf', size=DEFAULT_SIZE):
+        item = block_info['item']
         font = ImageFont.truetype(font, size)
         text_width, text_height = font.font.getsize(item)[0]
         imge_size = (text_width + 40, text_height + 30)
@@ -60,7 +66,8 @@ class PaintBlock:
 
         return img
 
-    def type_ends(self, item, font='arial.ttf', size=DEFAULT_SIZE):
+    def type_ends(self, block_info, font='arial.ttf', size=DEFAULT_SIZE):
+        item = block_info['item']
         font = ImageFont.truetype(font, size)
         text_width, text_height = font.font.getsize(item)[0]
         imge_size = (text_width + 40, text_height + 30)
@@ -94,7 +101,8 @@ class PaintBlock:
 
         return img
 
-    def type_for(self, item, font='arial.ttf', size=DEFAULT_SIZE):
+    def type_for(self, block_info, font='arial.ttf', size=DEFAULT_SIZE):
+        item = block_info['item']
         font = ImageFont.truetype(font, size)
         text_width, text_height = font.font.getsize(item)[0]
         imge_size = (text_width + 40, text_height + 30)
@@ -119,10 +127,46 @@ class PaintBlock:
         draw.line((*dots['D'], *dots['BD']), fill=(0, 0, 0), width=2)
 
         draw.text((20, 10), item, (0, 0, 0), font=font)
+        # рисуем внутрености
+        insaid_code_img = draw_block_diagram(block_info['insaid_code'])
+        arrow_img_1 = drow_arrow()
 
-        return img
+        nev_img = Image.new('RGB',
+                            (max(img.width, insaid_code_img.width) + 80,
+                             img.height + insaid_code_img.height + arrow_img_1.height + 20),
+                            (255, 255, 255))
 
-    def type_if(self, item, font='arial.ttf', size=DEFAULT_SIZE):
+        arrow_img_2 = drow_arrow(lomg=(nev_img.width - img.width) // 2 - 20).rotate(90, expand=True)
+
+        nev_img.paste(arrow_img_1, ((nev_img.width - arrow_img_1.width) // 2, img.height))
+        nev_img.paste(arrow_img_2, (20, img.height // 2 - arrow_img_2.height // 2,))
+        nev_img.paste(img, ((nev_img.width - img.width) // 2, 0))
+        nev_img.paste(insaid_code_img, ((nev_img.width - insaid_code_img.width) // 2, img.height + arrow_img_1.height))
+
+        draw = ImageDraw.Draw(nev_img)
+
+        dots = [
+            (nev_img.width // 2, img.height + arrow_img_1.height + insaid_code_img.height,),
+            (nev_img.width // 2, img.height + arrow_img_1.height + insaid_code_img.height + 10,),
+            (20, img.height + arrow_img_1.height + insaid_code_img.height + 10,),
+            (20, img.height // 2,),
+        ]
+
+        self.__draw_lines__(dots, draw)
+
+        dots = [
+            ((nev_img.width + img.width) // 2, img.height // 2,),
+            (nev_img.width - 20, img.height // 2,),
+            (nev_img.width - 20, nev_img.height,),
+            (nev_img.width // 2, nev_img.height,),
+        ]
+
+        self.__draw_lines__(dots, draw)
+
+        return nev_img
+
+    def type_if(self, block_info, font='arial.ttf', size=DEFAULT_SIZE):
+        item = block_info['item']
         font = ImageFont.truetype(font, size)
         text_width, text_height = font.font.getsize(item)[0]
         imge_size = (text_width * 2, int(text_height * 2.6))
@@ -170,11 +214,10 @@ def draw_block_diagram(code):
     for i in range(len_code):
         element = code[i]
 
-        if element['insaid_code']:
-            # draw_block_diagram(element['insaid_code']).show('charimg')
-            pass
+        # if element['insaid_code']:
+        #     draw_block_diagram(element['insaid_code']).show('charimg')
 
-        image_from_element = PaintBlock().function_library[element['type']](element['item'])
+        image_from_element = PaintBlock().function_library[element['type']](element)
 
         block_diagram_size = list(image_block_diagram.size)
         elem_image_size = list(image_from_element.size)
@@ -205,4 +248,13 @@ def draw_block_diagram(code):
     return image_block_diagram
 
 
-draw_block_diagram(test).show('charimg')
+if __name__ == '__main__':
+    import datetime
+
+    start_time = datetime.datetime.now()
+    draw_block_diagram(test).show('charimg')
+
+    end_time = datetime.datetime.now()
+
+    execution_time = end_time - start_time
+    print("Время выполнения программы: ", execution_time)

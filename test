@@ -13,4 +13,8 @@ for i in range(n):
     divider += x[i] * y[n - 1 - i] ** 2
     dividend += y[i] * x[n - 1 - i] ** 2
 
+    for i in range(n):
+        divider += x[i] * y[n - 1 - i] ** 2
+        dividend += y[i] * x[n - 1 - i] ** 2
+
 print(divider / dividend)
