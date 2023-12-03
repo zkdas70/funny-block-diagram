@@ -52,10 +52,10 @@ class Block():
                 return block_info
         else:
             if 'input' in block:
-                block_info['item'] = block
+                block_info['item'] = f'ввод: {block.split('=')[0].strip()}'
                 block_info['type'] = constants.SPECIAL_BLOCKS_ID['input']
             elif block[:5] == 'print':
-                block_info['item'] = block[5:]
+                block_info['item'] = f'вывод: {block[5:-1]}'
                 block_info['type'] = constants.SPECIAL_BLOCKS_ID['print']
             else:
                 block_info['item'] = block

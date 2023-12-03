@@ -12,7 +12,7 @@ class PaintBlock:
         self.function_library = {
             4: self.type_if,
             32: self.type_for,
-            64: self.type_if,
+            #64: Image.new('RGB', (0, 0), (255, 255, 255)),
             128: self.type_user_interaction,
             256: self.type_user_interaction,
             512: self.type_rectangular,
@@ -21,7 +21,7 @@ class PaintBlock:
 
     DEFAULT_SIZE = 20
 
-    def __draw_lines__(self, dots, draw):
+    def _draw_lines(self, dots, draw):
         for i in range(1, len(dots)):
             draw.line((*dots[i - 1], *dots[i]), fill=(0, 0, 0), width=2)
 
@@ -152,7 +152,7 @@ class PaintBlock:
             (20, img.height // 2,),
         ]
 
-        self.__draw_lines__(dots, draw)
+        self._draw_lines(dots, draw)
 
         dots = [
             ((nev_img.width + img.width) // 2, img.height // 2,),
@@ -161,22 +161,50 @@ class PaintBlock:
             (nev_img.width // 2, nev_img.height,),
         ]
 
-        self.__draw_lines__(dots, draw)
+        self._draw_lines(dots, draw)
 
         return nev_img
 
-    def type_if(self, block_info, font='arial.ttf', size=DEFAULT_SIZE):
-        item = block_info['item']
-        font = ImageFont.truetype(font, size)
-        text_width, text_height = font.font.getsize(item)[0]
-        imge_size = (text_width * 2, int(text_height * 2.6))
-        dots = {
-            'A': ((text_width * 2) // 2, 1,),
-            'B': (0, imge_size[1] // 2,),
-            'C': ((text_width * 2) // 2, int(text_height * 2.6) - 2,),
-            'D': (text_width * 2, imge_size[1] // 2,),
+    def _de_contain(self, container_if):
+        simplified_if_else = {
+            'condition': None,
+            'true': None,
+            'false': None,
         }
+        if len(container_if) == 2 and container_if[1][0] is None:
+            simplified_if_else['condition'] = container_if[0][0]
+            simplified_if_else['true'] = container_if[0][1]
+            simplified_if_else['false'] = container_if[1][1]
+            return simplified_if_else
+        elif len(container_if) >= 2:
+            simplified_if_else['condition'] = container_if[0][0]
+            simplified_if_else['true'] = container_if[0][1]
+            simplified_if_else['false'] = self._de_contain(container_if[1:])
+            return simplified_if_else
+        simplified_if_else['condition'] = container_if[0][0]
+        simplified_if_else['true'] = container_if[0][1]
+        return simplified_if_else
 
+    def type_if(self, container_if):
+        q = self.draw_type_if(self._de_contain(container_if))
+        return q
+
+    def draw_type_if(self, simplified_if_else, font_name='arial.ttf', size=DEFAULT_SIZE, indent=20):
+        font = ImageFont.truetype(font_name, size)
+        sp_font = ImageFont.truetype(font_name, size // 4 * 3)
+        text_width, text_height = font.font.getsize(simplified_if_else['condition'])[0]
+        sp_size = sp_font.font.getsize('нет')[0]
+
+        imge_size = (max(text_width * 2, 60) + sp_size[0] * 2, max(int(text_height * 2.6), 20))
+
+        dots = {
+            'A': (max(text_width * 2, 60) // 2 + sp_size[0], 1,),
+            'B': (sp_size[0], imge_size[1] // 2,),
+            'C': (max(text_width * 2, 60) // 2 + sp_size[0], max(int(text_height * 2.6), 20) - 2,),
+            'D': (max(text_width * 2, 60) + sp_size[0], imge_size[1] // 2 + 1,),
+            'T': (max(text_width * 2, 60) + sp_size[0] * 2, imge_size[1] // 2 + 1,),
+            'F': (0, imge_size[1] // 2,),
+        }
         img = Image.new("RGB", imge_size, (255, 255, 255))
         draw = ImageDraw.Draw(img)
 
@@ -185,10 +213,68 @@ class PaintBlock:
         draw.line((*dots['C'], *dots['D']), fill=(0, 0, 0), width=2)
         draw.line((*dots['D'], *dots['A']), fill=(0, 0, 0), width=2)
 
-        draw.text((imge_size[0] // 2 - text_width // 2, imge_size[1] // 2 - text_height // 2)
-                  , item, (0, 0, 0), font=font)
+        draw.line((*dots['T'], *dots['D']), fill=(0, 0, 0), width=2)
+        draw.line((*dots['F'], *dots['B']), fill=(0, 0, 0), width=2)
 
-        return img
+        draw.text((0, imge_size[1] // 2 - sp_size[1] // 4 * 9), 'нет', (0, 0, 0), font=sp_font)
+        draw.text((dots['D'][0], imge_size[1] // 2 - sp_size[1] // 4 * 9), 'да', (0, 0, 0), font=sp_font)
+
+        draw.text((imge_size[0] // 2 - text_width // 2, imge_size[1] // 2 - text_height // 2),
+                  simplified_if_else['condition'], (0, 0, 0), font=font)
+
+        # рисуем внутрености
+        insaid_code_if_img = draw_block_diagram(simplified_if_else['true'])
+        if type(simplified_if_else['false']) == dict:
+            insaid_code_else_img = self.draw_type_if(simplified_if_else['false'])
+        elif simplified_if_else['false']:
+            insaid_code_else_img = draw_block_diagram(simplified_if_else['false'])
+        else:
+            insaid_code_else_img = Image.new('RGB', (0, 0), (255, 255, 255))
+        arrow_img = drow_arrow(lomg=20 + img.height // 2)
+
+        nev_img = Image.new('RGB',
+                            (max(img.width, insaid_code_if_img.width + insaid_code_else_img.width) + indent * 4,
+                             img.height + max(insaid_code_if_img.height, insaid_code_else_img.height) + indent * 2),
+                            (255, 255, 255))
+
+        draw = ImageDraw.Draw(nev_img)
+
+        nev_img.paste(img, ((nev_img.width - img.width) // 2, 0))
+
+        nev_img.paste(arrow_img, (nev_img.width - insaid_code_if_img.width // 2, img.height // 2))
+        draw.line(((nev_img.width + img.width) // 2, img.height // 2,
+                   nev_img.width - insaid_code_if_img.width // 2 + 4, img.height // 2,), fill=(0, 0, 0), width=2)
+
+        nev_img.paste(insaid_code_if_img, (nev_img.width - insaid_code_if_img.width, img.height + indent))
+
+        dots = [
+            (nev_img.width - insaid_code_if_img.width // 2 + 4, img.height + indent + insaid_code_if_img.height,),
+            (nev_img.width - insaid_code_if_img.width // 2 + 4, nev_img.height,),
+            (nev_img.width // 2, nev_img.height,),
+        ]
+        self._draw_lines(dots, draw)
+
+        if insaid_code_else_img.size != (0, 0):
+            nev_img.paste(arrow_img, (insaid_code_else_img.width // 2, img.height // 2))
+            nev_img.paste(insaid_code_else_img, (0, img.height + indent))
+            draw.line((insaid_code_else_img.width // 2 + 4, img.height // 2,
+                       (nev_img.width - img.width) // 2, img.height // 2,), fill=(0, 0, 0), width=2)
+            dots = [
+                (insaid_code_else_img.width // 2, img.height + insaid_code_else_img.height + indent,),
+                (insaid_code_else_img.width // 2, nev_img.height - 1,),
+                (nev_img.width // 2, nev_img.height - 1,),
+            ]
+            self._draw_lines(dots, draw)
+        else:
+            dots = [
+                ((nev_img.width - img.width) // 2, img.height // 2,),
+                ((nev_img.width - img.width) // 2, nev_img.height - 1,),
+                (nev_img.width // 2, nev_img.height - 1,),
+            ]
+            self._draw_lines(dots, draw)
+
+        #nev_img.show()
+        return nev_img
 
 
 # img.save('rectangle_with_text.png')
@@ -211,13 +297,31 @@ def draw_block_diagram(code):
     height = 0
     len_code = len(code)
 
+    container_if = []
+
     for i in range(len_code):
         element = code[i]
 
         # if element['insaid_code']:
-        #     draw_block_diagram(element['insaid_code']).show('charimg')
+        #     draw_blck_diagram(element['insaid_code']).show('charimg')
 
-        image_from_element = PaintBlock().function_library[element['type']](element)
+        if element['type'] == 4:
+            container_if.append([element['item'], element['insaid_code']])
+            continue
+        elif element['type'] == 8:
+            container_if.append([element['item'], element['insaid_code']])
+            continue
+        elif element['type'] == 16:
+            container_if.append([None, element['insaid_code']])
+            image_from_element = PaintBlock().type_if(container_if)
+            container_if = []
+        else:
+            if container_if:
+                image_from_element = PaintBlock().type_if(container_if)
+            container_if = []
+
+        if element['type'] in PaintBlock().function_library.keys():
+            image_from_element = PaintBlock().function_library[element['type']](element)
 
         block_diagram_size = list(image_block_diagram.size)
         elem_image_size = list(image_from_element.size)
@@ -252,7 +356,9 @@ if __name__ == '__main__':
     import datetime
 
     start_time = datetime.datetime.now()
-    draw_block_diagram(test).show('charimg')
+    t = draw_block_diagram(test)
+    print(t)
+    t.show('2')
 
     end_time = datetime.datetime.now()
 
