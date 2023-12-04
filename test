@@ -1,0 +1,48 @@
+def square_matrix_square(matrix):
+    n = len(matrix)
+    result = [[0 for j in range(n)] for i in range(n)]
+    for i in range(n):
+        for j in range(n):
+            for k in range(n):
+                result[i][j] += matrix[i][k] * matrix[k][j]
+    return result
+
+
+def det_max_from_n_matrix(matrix):
+    max_item = None
+    for item in matrix:
+        if type(item) == list:
+            item = det_max_from_n_matrix(item)
+        if max_item is None or max_item < item:
+            max_item = item
+    return max_item
+
+
+def get_ansver(m1, m2):
+    amsver = None
+    if det_max_from_n_matrix(m1) > det_max_from_n_matrix(m2):
+        amsver = square_matrix_square(m1)
+    else:
+        amsver = square_matrix_square(m2)
+
+    ret = ''
+    for i in amsver:
+        ret += f'{i}\n'
+    return ret
+
+
+import random
+
+
+def imput_matrix(n=None, m=None):
+    w = [[random.randrange(1, 100) for j in range(4)] for i in range(4)]
+    print(w)
+    return w
+
+
+if __name__ == '__main__':
+    n = int(input('введите размер квадрата'))
+    m1 = imput_matrix(n=n, m=n)
+    m2 = imput_matrix(n=n, m=n)
+
+    print('получилась матрица\n' + get_ansver(m1, m2))

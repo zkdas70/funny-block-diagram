@@ -67,8 +67,7 @@ class PaintBlock:
 
         return img
 
-    def type_ends(self, block_info, font='arial.ttf', size=DEFAULT_SIZE):
-        item = block_info['item']
+    def type_ends(self, item, font='arial.ttf', size=DEFAULT_SIZE):
         font = ImageFont.truetype(font, size)
         text_width, text_height = font.font.getsize(item)[0]
         imge_size = (text_width + 40, text_height + 30)
@@ -255,8 +254,44 @@ class PaintBlock:
         # nev_img.show()
         return nev_img
 
-    def type_def(self):
-        pass
+    def type_def(self, block_info, font='arial.ttf', size=DEFAULT_SIZE, is_defld_code=False):
+        item = block_info['item']
+        font = ImageFont.truetype(font, size)
+
+        if is_defld_code:
+            img_begin = self.type_ends(f'начало')
+            img_end = self.type_ends(f'конец')
+        else:
+            img_begin = self.type_ends(f'начало: {item}')
+            img_end = self.type_ends(f'конец: {item}')
+
+        # рисуем внутрености
+        insaid_code_img = draw_block_diagram(block_info['insaid_code'])
+        arrow_img_1 = drow_arrow()
+
+        nev_img = Image.new('RGB',
+                            (max(img_begin.width, insaid_code_img.width) + 80,
+                             img_begin.height + insaid_code_img.height + arrow_img_1.height * 2 + img_end.height),
+                            (255, 255, 255))
+
+        nev_img.paste(arrow_img_1, ((nev_img.width - arrow_img_1.width) // 2, img_begin.height))
+        nev_img.paste(img_begin, ((nev_img.width - img_begin.width) // 2, 0))
+        nev_img.paste(arrow_img_1, ((nev_img.width - arrow_img_1.width) // 2,
+                                    img_begin.height + insaid_code_img.height + arrow_img_1.height))
+        nev_img.paste(insaid_code_img, ((nev_img.width - insaid_code_img.width) // 2,
+                                        img_begin.height + arrow_img_1.height))
+        nev_img.paste(img_end, ((nev_img.width - img_end.width) // 2,
+                                img_begin.height + insaid_code_img.height + arrow_img_1.height * 2))
+        return nev_img
+
+    def type_defld_code(self, code):
+        block_info = {
+            'item': None,
+            'type': 2,
+            'insaid_code': code,
+        }
+        return self.type_def(block_info, is_defld_code=True)
+
 
 
 # img.save('rectangle_with_text.png')
@@ -278,8 +313,6 @@ def draw_block_diagram(code):
     image_block_diagram = Image.new('RGB', (0, 0), (255, 255, 255))
     height = 0
     len_code = len(code)
-
-    container_if = []
 
     for i in range(len_code):
         element = code[i]
@@ -322,9 +355,15 @@ if __name__ == '__main__':
     import datetime
 
     start_time = datetime.datetime.now()
-    t = draw_block_diagram(test)
+
+    t = PaintBlock().type_defld_code(test[0])
+    # print(test[0])
+    t.show('t')
     # print(t)
-    t.show('2')
+    for i in test[1]:
+        # print([i])
+        t = draw_block_diagram([i])
+        t.show(f'{i}')
 
     end_time = datetime.datetime.now()
 

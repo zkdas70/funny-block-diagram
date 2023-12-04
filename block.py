@@ -66,14 +66,21 @@ class Block():
                     condition_blocs.append(block_info)
                 elif 8 <= block_info['type'] <= 16:
                     condition_blocs.append(block_info)
+                elif block_info['type'] == 2:
+                    def_blocs.append(block_info)
                 else:
-                    if condition_blocs:
-                        code_blocs.append(self._de_contain(condition_blocs))
-                        condition_blocs = []
-                    else:
-                        code_blocs.append(block_info)
+                    # if condition_blocs:
+                    #     print(2)
+                    #     code_blocs.append(self._de_contain(condition_blocs))
+                    #     condition_blocs = []
+                    # else:
+                    #     code_blocs.append(block_info)
+                    code_blocs.append(block_info)
         if condition_blocs:
             code_blocs.append(self._de_contain(condition_blocs))
+
+        if nesting == 0:
+            return code_blocs, def_blocs
         return code_blocs
 
     def get_block_info(self, block):
