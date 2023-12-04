@@ -10,9 +10,10 @@ from PIL import Image, ImageDraw, ImageFont
 class PaintBlock:
     def __init__(self):
         self.function_library = {
+            2: self.type_def,
             4: self.type_if,
             32: self.type_for,
-            #64: Image.new('RGB', (0, 0), (255, 255, 255)),
+            # 64: Image.new('RGB', (0, 0), (255, 255, 255)),
             128: self.type_user_interaction,
             256: self.type_user_interaction,
             512: self.type_rectangular,
@@ -165,33 +166,11 @@ class PaintBlock:
 
         return nev_img
 
-    def _de_contain(self, container_if):
-        simplified_if_else = {
-            'condition': None,
-            'true': None,
-            'false': None,
-        }
-        if len(container_if) == 2 and container_if[1][0] is None:
-            simplified_if_else['condition'] = container_if[0][0]
-            simplified_if_else['true'] = container_if[0][1]
-            simplified_if_else['false'] = container_if[1][1]
-            return simplified_if_else
-        elif len(container_if) >= 2:
-            simplified_if_else['condition'] = container_if[0][0]
-            simplified_if_else['true'] = container_if[0][1]
-            simplified_if_else['false'] = self._de_contain(container_if[1:])
-            return simplified_if_else
-        simplified_if_else['condition'] = container_if[0][0]
-        simplified_if_else['true'] = container_if[0][1]
-        return simplified_if_else
-
-    def type_if(self, container_if):
-        q = self.draw_type_if(self._de_contain(container_if))
-        return q
-
-    def draw_type_if(self, simplified_if_else, font_name='arial.ttf', size=DEFAULT_SIZE, indent=20):
+    def type_if(self, simplified_if_else, font_name='arial.ttf', size=DEFAULT_SIZE, indent=20):
         font = ImageFont.truetype(font_name, size)
         sp_font = ImageFont.truetype(font_name, size // 4 * 3)
+        if simplified_if_else['condition'] is None:
+            return
         text_width, text_height = font.font.getsize(simplified_if_else['condition'])[0]
         sp_size = sp_font.font.getsize('нет')[0]
 
@@ -225,7 +204,7 @@ class PaintBlock:
         # рисуем внутрености
         insaid_code_if_img = draw_block_diagram(simplified_if_else['true'])
         if type(simplified_if_else['false']) == dict:
-            insaid_code_else_img = self.draw_type_if(simplified_if_else['false'])
+            insaid_code_else_img = self.type_if(simplified_if_else['false'])
         elif simplified_if_else['false']:
             insaid_code_else_img = draw_block_diagram(simplified_if_else['false'])
         else:
@@ -233,7 +212,7 @@ class PaintBlock:
         arrow_img = drow_arrow(lomg=20 + img.height // 2)
 
         nev_img = Image.new('RGB',
-                            (max(img.width, insaid_code_if_img.width + insaid_code_else_img.width) + indent * 4,
+                            (max(img.width, max(insaid_code_if_img.width, insaid_code_else_img.width) * 2) + indent * 4,
                              img.height + max(insaid_code_if_img.height, insaid_code_else_img.height) + indent * 2),
                             (255, 255, 255))
 
@@ -273,8 +252,11 @@ class PaintBlock:
             ]
             self._draw_lines(dots, draw)
 
-        #nev_img.show()
+        # nev_img.show()
         return nev_img
+
+    def type_def(self):
+        pass
 
 
 # img.save('rectangle_with_text.png')
@@ -305,21 +287,6 @@ def draw_block_diagram(code):
         # if element['insaid_code']:
         #     draw_blck_diagram(element['insaid_code']).show('charimg')
 
-        if element['type'] == 4:
-            container_if.append([element['item'], element['insaid_code']])
-            continue
-        elif element['type'] == 8:
-            container_if.append([element['item'], element['insaid_code']])
-            continue
-        elif element['type'] == 16:
-            container_if.append([None, element['insaid_code']])
-            image_from_element = PaintBlock().type_if(container_if)
-            container_if = []
-        else:
-            if container_if:
-                image_from_element = PaintBlock().type_if(container_if)
-            container_if = []
-
         if element['type'] in PaintBlock().function_library.keys():
             image_from_element = PaintBlock().function_library[element['type']](element)
 
@@ -348,7 +315,6 @@ def draw_block_diagram(code):
         image_block_diagram.paste(img_arrow, ((block_diagram_size[0] - arrow_image_size[0]) // 2, height))
 
         height += arrow_image_size[1]
-
     return image_block_diagram
 
 
@@ -357,10 +323,10 @@ if __name__ == '__main__':
 
     start_time = datetime.datetime.now()
     t = draw_block_diagram(test)
-    print(t)
+    # print(t)
     t.show('2')
 
     end_time = datetime.datetime.now()
 
     execution_time = end_time - start_time
-    print("Время выполнения программы: ", execution_time)
+    # print("Время выполнения программы: ", execution_time)

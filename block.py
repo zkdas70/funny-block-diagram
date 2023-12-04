@@ -8,6 +8,29 @@ class Block():
     def __init__(self):
         pass
 
+    def _de_contain(self, container_if):
+        simplified_if_else = {
+            'type': 4,
+            'condition': None,
+            'true': None,
+            'false': None,
+        }
+        if len(container_if) == 1:
+            simplified_if_else['condition'] = container_if[0]['item']
+            simplified_if_else['true'] = container_if[0]['insaid_code']
+        elif len(container_if) == 2:
+            simplified_if_else['condition'] = container_if[0]['item']
+            simplified_if_else['true'] = container_if[0]['insaid_code']
+            if container_if[1]['type'] == 8:
+                simplified_if_else['false'] = self._de_contain(container_if[1:])
+            elif container_if[1]['type'] == 16:
+                simplified_if_else['false'] = container_if[1]['insaid_code']
+        else:
+            simplified_if_else['condition'] = container_if[0]['item']
+            simplified_if_else['true'] = container_if[0]['insaid_code']
+            simplified_if_else['false'] = self._de_contain(container_if[1:])
+        return simplified_if_else
+
     def get_nesting(self, texst):
         if self.IS_USE_TABS:
             texst = texst.replace('\t', '    ')
@@ -15,6 +38,8 @@ class Block():
 
     def decoder(self, code, nesting=0):
         code_blocs = []
+        def_blocs = []
+        condition_blocs = []
 
         for i in range(len(code)):
             item = code[i]
@@ -34,8 +59,21 @@ class Block():
             if self.get_nesting(item) == nesting:
                 block_info = self.get_block_info(stript_item)
                 block_info['insaid_code'] = insaid_code
-                code_blocs.append(block_info)
-
+                if block_info['type'] == 4:
+                    if condition_blocs:
+                        code_blocs.append(self._de_contain(condition_blocs))
+                        condition_blocs = []
+                    condition_blocs.append(block_info)
+                elif 8 <= block_info['type'] <= 16:
+                    condition_blocs.append(block_info)
+                else:
+                    if condition_blocs:
+                        code_blocs.append(self._de_contain(condition_blocs))
+                        condition_blocs = []
+                    else:
+                        code_blocs.append(block_info)
+        if condition_blocs:
+            code_blocs.append(self._de_contain(condition_blocs))
         return code_blocs
 
     def get_block_info(self, block):
