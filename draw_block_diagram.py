@@ -354,16 +354,17 @@ def draw_block_diagram(code):
 if __name__ == '__main__':
     import datetime
 
+    fail_path = 'resalt'
+
     start_time = datetime.datetime.now()
 
     t = PaintBlock().type_defld_code(test[0])
     # print(test[0])
-    t.show('t')
+    t.save(fail_path + '/base.png')
     # print(t)
-    for i in test[1]:
-        # print([i])
-        t = draw_block_diagram([i])
-        t.show(f'{i}')
+    for i in range(len(test[1])):
+        t = draw_block_diagram([test[1][i]])
+        t.save(f'{fail_path}/{i}.png')
 
     end_time = datetime.datetime.now()
 
