@@ -24,3 +24,7 @@ rad.json
 TestResults.xml
 
 .venv
+
+venv
+not gui
+resalt
