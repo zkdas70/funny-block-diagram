@@ -1,21 +1,3 @@
-if 1:
-    pass
 
-if 1:
-    pass
-else:
-    pass
-
-if 1:
-    pass
-elif 1:
-    pass
-
-if 1:
-    pass
-elif 1:
-    pass
-elif 1:
-    pass
-else:
+def frt(r):
     pass

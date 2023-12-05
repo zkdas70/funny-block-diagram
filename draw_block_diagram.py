@@ -254,19 +254,12 @@ class PaintBlock:
         # nev_img.show()
         return nev_img
 
-    def type_def(self, block_info, font='arial.ttf', size=DEFAULT_SIZE, is_defld_code=False):
-        item = block_info['item']
-        font = ImageFont.truetype(font, size)
-
-        if is_defld_code:
-            img_begin = self.type_ends(f'начало')
-            img_end = self.type_ends(f'конец')
-        else:
-            img_begin = self.type_ends(f'начало: {item}')
-            img_end = self.type_ends(f'конец: {item}')
+    def _drow_ends(self, insaid_code, ends=('начало', 'конец'), font='arial.ttf', size=DEFAULT_SIZE):
+        img_begin = self.type_ends(ends[0])
+        img_end = self.type_ends(ends[1])
 
         # рисуем внутрености
-        insaid_code_img = draw_block_diagram(block_info['insaid_code'])
+        insaid_code_img = draw_block_diagram(insaid_code)
         arrow_img_1 = drow_arrow()
 
         nev_img = Image.new('RGB',
@@ -285,13 +278,10 @@ class PaintBlock:
         return nev_img
 
     def type_defld_code(self, code):
-        block_info = {
-            'item': None,
-            'type': 2,
-            'insaid_code': code,
-        }
-        return self.type_def(block_info, is_defld_code=True)
+        return self._drow_ends(code)
 
+    def type_def(self, code):
+        return self._drow_ends(code['insaid_code'], ends=(f'начало: {code['item']}', f'конец: {code['item']}'))
 
 
 # img.save('rectangle_with_text.png')
@@ -349,6 +339,8 @@ def draw_block_diagram(code):
 
         height += arrow_image_size[1]
     return image_block_diagram
+
+
 
 
 if __name__ == '__main__':
