@@ -13,7 +13,7 @@ class PaintBlock:
             2: self.type_def,
             4: self.type_if,
             32: self.type_for,
-            # 64: Image.new('RGB', (0, 0), (255, 255, 255)),
+            64: self.type_while,
             128: self.type_user_interaction,
             256: self.type_user_interaction,
             512: self.type_rectangular,
@@ -150,6 +150,83 @@ class PaintBlock:
             (nev_img.width // 2, img.height + arrow_img_1.height + insaid_code_img.height + 10,),
             (20, img.height + arrow_img_1.height + insaid_code_img.height + 10,),
             (20, img.height // 2,),
+        ]
+
+        self._draw_lines(dots, draw)
+
+        dots = [
+            ((nev_img.width + img.width) // 2, img.height // 2,),
+            (nev_img.width - 20, img.height // 2,),
+            (nev_img.width - 20, nev_img.height,),
+            (nev_img.width // 2, nev_img.height,),
+        ]
+
+        self._draw_lines(dots, draw)
+
+        return nev_img
+
+    def type_while(self, block_info, font_name='arial.ttf', size=DEFAULT_SIZE):
+        font = ImageFont.truetype(font_name, size)
+        text_width, text_height = font.font.getsize(block_info['item'])[0]
+
+        sp_font = ImageFont.truetype(font_name, size // 4 * 3)
+        sp_size = sp_font.font.getsize('нет')[0]
+
+        imge_size = (max(text_width * 2, 60) + sp_size[0] * 2, max(int(text_height * 2.6), 20))
+
+        dots = {
+            'A': (max(text_width * 2, 60) // 2 + sp_size[0], 1,),
+            'B': (sp_size[0], imge_size[1] // 2,),
+            'C': (max(text_width * 2, 60) // 2 + sp_size[0], max(int(text_height * 2.6), 20) - 2,),
+            'D': (max(text_width * 2, 60) + sp_size[0], imge_size[1] // 2 + 1,),
+            'F': (max(text_width * 2, 60) + sp_size[0] * 2, imge_size[1] // 2 + 1,),
+            'T': (0, imge_size[1] // 2,),
+        }
+        img = Image.new("RGB", imge_size, (255, 255, 255))
+        draw = ImageDraw.Draw(img)
+
+        draw.line((*dots['A'], *dots['B']), fill=(0, 0, 0), width=2)
+        draw.line((*dots['B'], *dots['C']), fill=(0, 0, 0), width=2)
+        draw.line((*dots['C'], *dots['D']), fill=(0, 0, 0), width=2)
+        draw.line((*dots['D'], *dots['A']), fill=(0, 0, 0), width=2)
+
+        draw.line((*dots['F'], *dots['D']), fill=(0, 0, 0), width=2)
+        draw.line((*dots['T'], *dots['B']), fill=(0, 0, 0), width=2)
+
+        arrow_img_2 = drow_arrow(lomg=sp_size[0]).rotate(90, expand=True)
+        img.paste(arrow_img_2, (dots['T'][0], dots['T'][1] - arrow_img_2.height // 2 + 1))
+
+        # draw.text((0, imge_size[1] // 2 - sp_size[1] // 4 * 9), 'да', (0, 0, 0), font=sp_font)
+        draw.text((dots['D'][0], imge_size[1] // 2 - sp_size[1] // 4 * 9), 'нет', (0, 0, 0), font=sp_font)
+
+        draw.text((imge_size[0] // 2 - text_width // 2, imge_size[1] // 2 - text_height // 2 - 4),
+                  block_info['item'], (0, 0, 0), font=font)
+
+
+        # рисуем внутрености
+        insaid_code_img = draw_block_diagram(block_info['insaid_code'])
+        arrow_img_1 = drow_arrow()
+
+        nev_img = Image.new('RGB',
+                            (max(img.width, insaid_code_img.width) + 80,
+                             img.height + insaid_code_img.height + arrow_img_1.height + 20),
+                            (255, 255, 255))
+
+        nev_img.paste(arrow_img_1, ((nev_img.width - arrow_img_1.width) // 2, img.height))
+        nev_img.paste(img, ((nev_img.width - img.width) // 2, 0))
+        nev_img.paste(insaid_code_img, ((nev_img.width - insaid_code_img.width) // 2, img.height + arrow_img_1.height))
+
+        draw = ImageDraw.Draw(nev_img)
+
+        draw.text(((nev_img.width - arrow_img_1.width) // 2 + arrow_img_1.width, img.height),
+                  'да', (0, 0, 0), font=sp_font)
+
+        dots = [
+            (nev_img.width // 2, img.height + arrow_img_1.height + insaid_code_img.height,),
+            (nev_img.width // 2, img.height + arrow_img_1.height + insaid_code_img.height + 10,),
+            (20, img.height + arrow_img_1.height + insaid_code_img.height + 10,),
+            (20, img.height // 2,),
+            ((nev_img.width - img.width) // 2, img.height // 2,),
         ]
 
         self._draw_lines(dots, draw)
@@ -341,8 +418,6 @@ def draw_block_diagram(code):
     return image_block_diagram
 
 
-
-
 if __name__ == '__main__':
     import datetime
 
@@ -352,7 +427,7 @@ if __name__ == '__main__':
 
     t = PaintBlock().type_defld_code(test[0])
     # print(test[0])
-    t.save(fail_path + '/base.png')
+    t.show(fail_path + '/base.png')
     # print(t)
     for i in range(len(test[1])):
         t = draw_block_diagram([test[1][i]])
