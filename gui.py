@@ -2,7 +2,7 @@ import block, draw_block_diagram, get_imgs
 
 import sys
 
-from PyQt6 import uic  # Импортируем uic
+from PyQt6 import uic, QtGui  # Импортируем uic
 from PyQt6.QtCore import QMimeData
 from PyQt6.QtWidgets import QApplication, QMainWindow, QLabel, QWidget, QFileDialog
 from PyQt6.QtGui import QPixmap, QImage, QClipboard
@@ -107,6 +107,9 @@ class MainWindow(QMainWindow):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
+    app.setWindowIcon(QtGui.QIcon('gui/icom.png'))
+
     ex = MainWindow()
+    ex.setWindowIcon(QtGui.QIcon('gui/icom.png'))
     ex.show()
     app.exec()
