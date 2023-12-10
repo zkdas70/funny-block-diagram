@@ -9,6 +9,7 @@ class Block():
         pass
 
     def _de_contain(self, container_if):
+        print('_de_contain')
         simplified_if_else = {
             'type': 4,
             'condition': None,
@@ -54,6 +55,8 @@ class Block():
                 insaid_code = self.decoder(code[i + 1:], nesting=nesting + 1)
 
             if self.get_nesting(item) < nesting:
+                if condition_blocs:
+                    code_blocs.append(self._de_contain(condition_blocs))
                 return code_blocs
 
             if self.get_nesting(item) == nesting:
@@ -69,12 +72,9 @@ class Block():
                 elif block_info['type'] == 2:
                     def_blocs.append(block_info)
                 else:
-                    # if condition_blocs:
-                    #     print(2)
-                    #     code_blocs.append(self._de_contain(condition_blocs))
-                    #     condition_blocs = []
-                    # else:
-                    #     code_blocs.append(block_info)
+                    if condition_blocs:
+                        code_blocs.append(self._de_contain(condition_blocs))
+                        condition_blocs = []
                     code_blocs.append(block_info)
         if condition_blocs:
             code_blocs.append(self._de_contain(condition_blocs))

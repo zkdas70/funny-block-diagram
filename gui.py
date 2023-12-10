@@ -69,7 +69,7 @@ class MainWindow(QMainWindow):
                                                    "Images (*.png *.xpm *.jpg)")
 
             if not fname:
-                return 
+                return
 
             with open(fname, 'wb') as f:
                 f.write(self.block_diagrams[image_imdex][0].getvalue())
