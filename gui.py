@@ -1,27 +1,30 @@
-import block, draw_block_diagram
+import block, draw_block_diagram, get_imgs
 from PIL.ImageQt import ImageQt
 
 import sys
 
 from PyQt6 import uic  # Импортируем uic
 from PyQt6.QtWidgets import QApplication, QMainWindow, QLabel, QWidget, QFileDialog
-from PyQt6.QtGui import QPixmap
+from PyQt6.QtGui import QPixmap, QImage
 
 
 class BlockDiagram(QWidget):
-    def __init__(self, image):
+    def __init__(self, buffer):  # buffer - обьект BytesIO с картинкой
         super().__init__()
         uic.loadUi(r'gui/block_diagram.ui', self)
 
-        self.show_block_diagram(image)
+        self.show_block_diagram(buffer)
 
-    def show_block_diagram(self, image):
-        pixmap = QPixmap.fromImage(image)
+    def show_block_diagram(self, buffer):
+        image_bytes = buffer.getvalue()
+
+        qimage = QImage.fromData(image_bytes)
+
+        pixmap = QPixmap.fromImage(qimage)
 
         self.BlockDiagramBase.setMinimumSize(pixmap.size())
 
         self.BlockDiagramBase.setPixmap(pixmap)
-
 
 
 class CastomTabWidget(QWidget):
@@ -29,8 +32,8 @@ class CastomTabWidget(QWidget):
         super().__init__()
         uic.loadUi(r'gui/tab_widget.ui', self)
 
-        for item in tabs:
-            self.tabWidget.addTab(BlockDiagram(item[0]), f' {item[1]} ')
+        for img_bytes, name in tabs:
+            self.tabWidget.addTab(BlockDiagram(img_bytes), f' {name} ')
 
 
 class MainWindow(QMainWindow):
@@ -38,38 +41,26 @@ class MainWindow(QMainWindow):
         super().__init__()
         uic.loadUi(r'gui/gui.ui', self)  # Загружаем дизайн
 
-        # self.convert.clicked.connect(self.show_block_diagram)
-        self.show_block_diagram()
+        self.convert.clicked.connect(self.show_block_diagram)
+        # self.show_block_diagram()
 
     def show_block_diagram(self):
-        # fname = QFileDialog.getOpenFileName(
-        #     self, 'Выбрать файл с кодом', '',
-        #     'python (*.py);;Все файлы (*)')[0]
-
-        fname = r'F:\programming projects\python projects\tusur_python_lesons\LAB 4\53.py'
-        blocks_images = []
-
-        with open(fname) as f:
-            file_code = f.readlines()
-
-        decodet_file_code = block.Block().decoder(file_code)
-
-        image = draw_block_diagram.PaintBlock().type_defld_code(decodet_file_code[0])
-
-        if len(decodet_file_code[1]) == 0:
-            image = BlockDiagram((ImageQt(image)))
-            image.show()
-            self.gridLayout.addWidget(image)
+        fname, _ = QFileDialog.getOpenFileName(self, "Выберите файл", r"F:\programming projects\python projects\tusur_python_lesons", 'python (*.py);;Все файлы (*)')
+        if not fname:
             return
 
-        blocks_images.append((ImageQt(image), 'основной код программы'))
+        # fname = r'F:\programming projects\python projects\tusur_python_lesons\LAB 4\53.py'
 
-        for i in range(len(decodet_file_code[1])):
-            image = draw_block_diagram.draw_block_diagram([decodet_file_code[1][i]])
+        block_diagrams = get_imgs.get_imgs(fname)
 
-            blocks_images.append((ImageQt(image), decodet_file_code[1][i]['item']))
-        castom_tab = CastomTabWidget(blocks_images)
-        self.gridLayout.addWidget(castom_tab)
+        if len(block_diagrams) == 1:
+            block_diagram = BlockDiagram(block_diagrams[0][0])
+
+            self.space_for_block_diagram.addWidget(block_diagram)
+            return
+
+        castom_tab = CastomTabWidget(block_diagrams)
+        self.space_for_block_diagram.addWidget(castom_tab)
 
 
 if __name__ == '__main__':
@@ -77,4 +68,3 @@ if __name__ == '__main__':
     ex = MainWindow()
     ex.show()
     app.exec()
-
