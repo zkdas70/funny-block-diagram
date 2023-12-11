@@ -28,3 +28,7 @@ TestResults.xml
 venv
 not gui
 resalt
+/icom.ico
+/dist/
+/build/
+/gui.spec

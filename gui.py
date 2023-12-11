@@ -1,11 +1,10 @@
-import block, draw_block_diagram, get_imgs
+import get_imgs
 
 import sys
 
 from PyQt6 import uic, QtGui  # Импортируем uic
-from PyQt6.QtCore import QMimeData
-from PyQt6.QtWidgets import QApplication, QMainWindow, QLabel, QWidget, QFileDialog
-from PyQt6.QtGui import QPixmap, QImage, QClipboard
+from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QFileDialog
+from PyQt6.QtGui import QPixmap, QImage
 
 
 class BlockDiagram(QWidget):

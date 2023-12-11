@@ -9,13 +9,13 @@ class Block():
         pass
 
     def _de_contain(self, container_if):
-        print('_de_contain')
         simplified_if_else = {
             'type': 4,
             'condition': None,
             'true': None,
             'false': None,
         }
+
         if len(container_if) == 1:
             simplified_if_else['condition'] = container_if[0]['item']
             simplified_if_else['true'] = container_if[0]['insaid_code']
@@ -106,13 +106,3 @@ class Block():
                 block_info['item'] = block
                 block_info['type'] = constants.SPECIAL_BLOCKS_ID['none type']
         return block_info
-
-
-if __name__ == '__main__':
-    import pprint
-
-    f = open('test')
-    code = f.readlines()
-    q = Block().decoder(code)
-    print('\n\n\n\n\n\n')
-    print(pprint.pformat(q))

@@ -1,9 +1,3 @@
-from block import Block
-
-f = open('test')
-code = f.readlines()
-test = Block().decoder(code)
-
 from PIL import Image, ImageDraw, ImageFont
 
 
@@ -416,24 +410,3 @@ def draw_block_diagram(code):
 
         height += arrow_image_size[1]
     return image_block_diagram
-
-
-if __name__ == '__main__':
-    import datetime
-
-    fail_path = 'resalt'
-
-    start_time = datetime.datetime.now()
-
-    t = PaintBlock().type_defld_code(test[0])
-    # print(test[0])
-    t.show(fail_path + '/base.png')
-    # print(t)
-    for i in range(len(test[1])):
-        t = draw_block_diagram([test[1][i]])
-        t.save(f'{fail_path}/{i}.png')
-
-    end_time = datetime.datetime.now()
-
-    execution_time = end_time - start_time
-    # print("Время выполнения программы: ", execution_time)
