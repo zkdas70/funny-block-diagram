@@ -11,7 +11,7 @@ class PaintBlock:
             128: self.type_user_interaction,
             256: self.type_user_interaction,
             512: self.type_rectangular,
-
+            1024: self.type_with,
         }
 
     DEFAULT_SIZE = 20
@@ -353,6 +353,38 @@ class PaintBlock:
 
     def type_def(self, code):
         return self._drow_ends(code['insaid_code'], ends=(f'начало: {code['item']}', f'конец: {code['item']}'))
+
+    def type_with(self, block_info, font_name='arial.ttf', size=DEFAULT_SIZE):
+        print(block_info)
+        with_string = block_info['item'].split()
+        begin = {
+            'item': f'{with_string[0][:-1]}) в {with_string[-1]}',
+        }
+        print(f'{with_string[0][:-1]}) в {with_string[-1]}')
+        img_begin = self.type_rectangular(begin)
+        end = {
+            'item': f'закрыть вайл {with_string[-1]}',
+        }
+        img_end = self.type_rectangular(end)
+        print(1)
+        # рисуем внутрености
+        insaid_code_img = draw_block_diagram(block_info['insaid_code'])
+        arrow_img_1 = drow_arrow()
+
+        nev_img = Image.new('RGB',
+                            (max(img_begin.width, insaid_code_img.width) + 80,
+                             img_begin.height + insaid_code_img.height + arrow_img_1.height * 2 + img_end.height),
+                            (255, 255, 255))
+
+        nev_img.paste(arrow_img_1, ((nev_img.width - arrow_img_1.width) // 2, img_begin.height))
+        nev_img.paste(img_begin, ((nev_img.width - img_begin.width) // 2, 0))
+        nev_img.paste(arrow_img_1, ((nev_img.width - arrow_img_1.width) // 2,
+                                    img_begin.height + insaid_code_img.height + arrow_img_1.height))
+        nev_img.paste(insaid_code_img, ((nev_img.width - insaid_code_img.width) // 2,
+                                        img_begin.height + arrow_img_1.height))
+        nev_img.paste(img_end, ((nev_img.width - img_end.width) // 2,
+                                img_begin.height + insaid_code_img.height + arrow_img_1.height * 2))
+        return nev_img
 
 
 # img.save('rectangle_with_text.png')

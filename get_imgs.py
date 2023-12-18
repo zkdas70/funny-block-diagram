@@ -9,7 +9,7 @@ def get_imgs(file_path):
 
     block_diagrams = []
 
-    with open(file_path) as f:
+    with open(file_path, encoding="utf-8") as f:
         file_code = f.readlines()
 
     decodet_file_code = block.Block().decoder(file_code)

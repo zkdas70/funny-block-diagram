@@ -5,6 +5,7 @@ BLOCKS_WITH_ATTACHMENT_ID = {
     'else': 16,
     'for': 32,
     'while': 64,
+    'with': 1024
 }
 
 SPECIAL_BLOCKS_ID = {
